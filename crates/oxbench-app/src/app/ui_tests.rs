@@ -1,6 +1,6 @@
 //! Drives the real app headlessly: clicks, key presses and typed text, as a user would.
 
-use eframe::egui::{Event, Key, Modifiers, ThemePreference};
+use eframe::egui::{self, Event, Key, Modifiers, ThemePreference};
 use egui_kittest::Harness;
 use egui_kittest::kittest::Queryable;
 
@@ -30,7 +30,7 @@ fn active_tab(harness: &Harness<'_, OxbenchApp>) -> Option<ToolId> {
 fn starts_on_the_home_screen() {
     let harness = launch();
     assert_eq!(active_tab(&harness), None);
-    harness.get_by_label("All tools");
+    harness.get_by_label("Search all tools");
 }
 
 #[test]
@@ -134,4 +134,57 @@ fn theme_button_cycles_the_theme() {
     harness.run();
     assert_eq!(harness.state().theme, ThemePreference::Light);
     harness.get_by_label("Theme: Light");
+}
+
+/// Renders screenshots for visual review. Run explicitly:
+/// `OXBENCH_SCREENSHOT_DIR=/some/dir cargo test -p oxbench-app render_screenshots -- --ignored`
+#[test]
+#[ignore = "writes PNG files; run on demand for visual review"]
+fn render_screenshots() {
+    let output_dir =
+        std::env::var("OXBENCH_SCREENSHOT_DIR").unwrap_or_else(|_| "target/screenshots".to_owned());
+    std::fs::create_dir_all(&output_dir).unwrap();
+    for (theme, theme_name) in [(egui::Theme::Dark, "dark"), (egui::Theme::Light, "light")] {
+        let mut harness = Harness::builder()
+            .with_size(egui::vec2(1200.0, 800.0))
+            .with_theme(theme)
+            .build_eframe(|creation_context| OxbenchApp::new(creation_context));
+        harness
+            .state_mut()
+            .workspace
+            .toggle_favorite(ToolId::JsonViewer);
+        harness.state_mut().workspace.open_tool(ToolId::JwtDecoder);
+        harness.state_mut().workspace.show_home();
+        harness.run();
+        save_render(&mut harness, &output_dir, &format!("home-{theme_name}"));
+
+        harness.state_mut().workspace.open_tool(ToolId::JsonViewer);
+        harness.run();
+        harness.get_by_label_contains("Sample").click();
+        harness.run();
+        save_render(
+            &mut harness,
+            &output_dir,
+            &format!("json-text-{theme_name}"),
+        );
+
+        harness.get_by_label("Tree").click();
+        harness.run();
+        save_render(
+            &mut harness,
+            &output_dir,
+            &format!("json-tree-{theme_name}"),
+        );
+
+        harness.key_press_modifiers(Modifiers::COMMAND, Key::K);
+        harness.run();
+        harness.event(Event::Text("ke".to_owned()));
+        harness.run();
+        save_render(&mut harness, &output_dir, &format!("palette-{theme_name}"));
+    }
+}
+
+fn save_render(harness: &mut Harness<'_, OxbenchApp>, output_dir: &str, name: &str) {
+    let image = harness.render().unwrap();
+    image.save(format!("{output_dir}/{name}.png")).unwrap();
 }

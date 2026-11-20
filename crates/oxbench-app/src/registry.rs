@@ -5,6 +5,8 @@
 
 use serde::{Deserialize, Serialize};
 
+use crate::style::icons;
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum ToolId {
     JsonViewer,
@@ -36,6 +38,7 @@ pub enum Category {
 pub struct ToolMeta {
     pub id: ToolId,
     pub name: &'static str,
+    pub icon: &'static str,
     pub category: Category,
     pub summary: &'static str,
     /// Extra lowercase search terms, so "sha" finds the Hash Generator.
@@ -196,9 +199,30 @@ impl ToolId {
         ToolMeta {
             id: self,
             name,
+            icon: self.icon(),
             category,
             summary,
             keywords,
+        }
+    }
+}
+
+impl ToolId {
+    const fn icon(self) -> &'static str {
+        match self {
+            ToolId::JsonViewer => icons::BRACKETS_CURLY,
+            ToolId::EpochConverter => icons::CLOCK,
+            ToolId::JwtDecoder => icons::SEAL_CHECK,
+            ToolId::HashGenerator => icons::HASH,
+            ToolId::IdGenerator => icons::FINGERPRINT,
+            ToolId::RandomString => icons::DICE_FIVE,
+            ToolId::PasswordGenerator => icons::PASSWORD,
+            ToolId::Bcrypt => icons::LOCK_KEY,
+            ToolId::TextCompare => icons::GIT_DIFF,
+            ToolId::CidrCalculator => icons::NETWORK,
+            ToolId::QrGenerator => icons::QR_CODE,
+            ToolId::LoremIpsum => icons::PARAGRAPH,
+            ToolId::KeyPair => icons::KEY,
         }
     }
 }

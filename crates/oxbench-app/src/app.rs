@@ -8,7 +8,9 @@ use crate::shell::ShellAction;
 use crate::shell::command_palette::CommandPalette;
 use crate::shell::home::show_home;
 use crate::shell::sidebar::show_sidebar;
-use crate::shell::tabs::show_tab_bar;
+use crate::shell::tabs::{TAB_BAR_HEIGHT, show_tab_bar};
+use crate::style::install_style;
+use crate::style::palette::Palette;
 use crate::tool::Tool;
 use crate::tools::create_tool;
 use crate::workspace::Workspace;
@@ -48,6 +50,7 @@ impl OxbenchApp {
             .storage
             .and_then(|storage| eframe::get_value(storage, eframe::APP_KEY))
             .unwrap_or_default();
+        install_style(&creation_context.egui_ctx);
         creation_context.egui_ctx.set_theme(saved.theme);
         let mut workspace = saved.workspace;
         workspace.normalize();
@@ -124,25 +127,49 @@ impl eframe::App for OxbenchApp {
         let mut actions = Vec::new();
         self.collect_shortcut_actions(&ctx, &mut actions);
 
+        let palette = Palette::of_context(&ctx);
         egui::Panel::left("sidebar")
             .resizable(true)
-            .default_size(220.0)
-            .min_size(170.0)
+            .default_size(232.0)
+            .min_size(190.0)
+            .frame(
+                egui::Frame::default()
+                    .fill(palette.panel)
+                    .inner_margin(egui::Margin::symmetric(10, 12)),
+            )
             .show(ui, |ui| {
                 show_sidebar(ui, &self.workspace, &mut self.sidebar_filter, &mut actions);
             });
-        egui::Panel::top("tab_bar").show(ui, |ui| {
-            show_tab_bar(
-                ui,
-                &self.workspace,
-                self.theme,
-                &palette_shortcut,
-                &mut actions,
-            );
-        });
-        egui::CentralPanel::default().show(ui, |ui| {
-            self.show_active_tool(ui, &palette_shortcut, &mut actions);
-        });
+        egui::Panel::top("tab_bar")
+            .exact_size(TAB_BAR_HEIGHT)
+            .frame(
+                egui::Frame::default()
+                    .fill(palette.panel)
+                    .inner_margin(egui::Margin {
+                        left: 6,
+                        right: 10,
+                        top: 6,
+                        bottom: 0,
+                    }),
+            )
+            .show(ui, |ui| {
+                show_tab_bar(
+                    ui,
+                    &self.workspace,
+                    self.theme,
+                    &palette_shortcut,
+                    &mut actions,
+                );
+            });
+        egui::CentralPanel::default()
+            .frame(
+                egui::Frame::default()
+                    .fill(palette.background)
+                    .inner_margin(egui::Margin::symmetric(20, 16)),
+            )
+            .show(ui, |ui| {
+                self.show_active_tool(ui, &palette_shortcut, &mut actions);
+            });
         self.palette.show(&ctx, &mut actions);
 
         for action in actions {

@@ -1,5 +1,7 @@
 use eframe::egui::ThemePreference;
 
+use crate::style::icons;
+
 pub const fn next_theme(current: ThemePreference) -> ThemePreference {
     match current {
         ThemePreference::System => ThemePreference::Light,
@@ -13,6 +15,14 @@ pub const fn theme_label(theme: ThemePreference) -> &'static str {
         ThemePreference::System => "Theme: System",
         ThemePreference::Light => "Theme: Light",
         ThemePreference::Dark => "Theme: Dark",
+    }
+}
+
+pub const fn theme_icon(theme: ThemePreference) -> &'static str {
+    match theme {
+        ThemePreference::System => icons::CIRCLE_HALF,
+        ThemePreference::Light => icons::SUN,
+        ThemePreference::Dark => icons::MOON,
     }
 }
 

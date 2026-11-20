@@ -18,4 +18,4 @@ name = "oxbench"
 path = "src/main.rs"
 
 [dev-dependencies]
-egui_kittest = { version = "0.37.0", features = ["eframe"] }
+egui_kittest = { version = "0.37.0", features = ["eframe", "snapshot", "wgpu"] }

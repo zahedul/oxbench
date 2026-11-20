@@ -3,12 +3,13 @@
 mod app;
 mod registry;
 mod shell;
+mod style;
 mod tool;
 mod tools;
+mod widgets;
 mod workspace;
 
 use app::OxbenchApp;
-use oxbench_core as _;
 
 pub const APP_NAME: &str = "Oxbench";
 

@@ -1,10 +1,14 @@
 use eframe::egui::{self, Key, Modifiers};
 
 use super::ShellAction;
-use crate::registry::{ToolId, search_tools};
+use crate::registry::{ToolId, ToolMeta, search_tools};
+use crate::style::fonts::icon_font;
+use crate::style::palette::Palette;
+use crate::widgets::search_field::show_search_field;
 
-const PALETTE_WIDTH: f32 = 480.0;
-const RESULTS_HEIGHT: f32 = 320.0;
+const PALETTE_WIDTH: f32 = 560.0;
+const RESULTS_HEIGHT: f32 = 360.0;
+const ROW_HEIGHT: f32 = 36.0;
 
 #[derive(Default)]
 pub struct CommandPalette {
@@ -50,43 +54,44 @@ impl CommandPalette {
         self.move_selection(&keys, results.len());
 
         let mut chosen: Option<ToolId> = None;
-        let modal = egui::Modal::new(egui::Id::unique("command_palette")).show(ctx, |ui| {
-            ui.set_width(PALETTE_WIDTH);
-            let input = ui.add(
-                egui::TextEdit::singleline(&mut self.query)
-                    .hint_text("Search tools…")
-                    .desired_width(f32::INFINITY),
-            );
-            if self.should_focus_input {
-                input.request_focus();
-                self.should_focus_input = false;
-            }
-            if input.changed() {
-                self.selected_index = 0;
-            }
-            ui.separator();
-            egui::ScrollArea::vertical()
-                .max_height(RESULTS_HEIGHT)
-                .show(ui, |ui| {
-                    if results.is_empty() {
-                        ui.weak("No tools match.");
-                    }
-                    for (index, tool) in results.iter().enumerate() {
-                        let is_selected = index == self.selected_index;
-                        let label = format!("{}    {}", tool.name, tool.category.label());
-                        let row = ui.add_sized(
-                            [ui.available_width(), 24.0],
-                            egui::Button::selectable(is_selected, label),
-                        );
-                        if is_selected && (keys.is_down || keys.is_up) {
-                            row.scroll_to_me(None);
+        let palette = Palette::of_context(ctx);
+        let frame = egui::Frame::default()
+            .fill(palette.panel)
+            .stroke(egui::Stroke::new(1.0, palette.border_strong))
+            .corner_radius(12)
+            .inner_margin(10)
+            .shadow(ctx.global_style().visuals.window_shadow);
+        let modal = egui::Modal::new(egui::Id::unique("command_palette"))
+            .frame(frame)
+            .show(ctx, |ui| {
+                ui.set_width(PALETTE_WIDTH);
+                let input = show_search_field(ui, &mut self.query, "Search tools…", 16.0);
+                if self.should_focus_input {
+                    input.request_focus();
+                    self.should_focus_input = false;
+                }
+                if input.changed() {
+                    self.selected_index = 0;
+                }
+                ui.separator();
+                egui::ScrollArea::vertical()
+                    .max_height(RESULTS_HEIGHT)
+                    .show(ui, |ui| {
+                        if results.is_empty() {
+                            ui.weak("No tools match.");
                         }
-                        if row.clicked() {
-                            chosen = Some(tool.id);
+                        for (index, tool) in results.iter().enumerate() {
+                            let is_selected = index == self.selected_index;
+                            let row = show_result_row(ui, *tool, is_selected);
+                            if is_selected && (keys.is_down || keys.is_up) {
+                                row.scroll_to_me(None);
+                            }
+                            if row.clicked() {
+                                chosen = Some(tool.id);
+                            }
                         }
-                    }
-                });
-        });
+                    });
+            });
 
         if keys.is_enter {
             chosen = chosen.or_else(|| results.get(self.selected_index).map(|tool| tool.id));
@@ -115,4 +120,54 @@ impl CommandPalette {
         }
         self.selected_index = self.selected_index.min(last);
     }
+}
+
+fn show_result_row(ui: &mut egui::Ui, tool: ToolMeta, is_selected: bool) -> egui::Response {
+    let palette = Palette::of(ui);
+    let (rect, response) = ui.allocate_exact_size(
+        egui::vec2(ui.available_width(), ROW_HEIGHT),
+        egui::Sense::click(),
+    );
+    response.widget_info(|| {
+        egui::WidgetInfo::selected(egui::Role::Button, true, is_selected, tool.name)
+    });
+    if !ui.is_rect_visible(rect) {
+        return response;
+    }
+    let painter = ui.painter();
+    let fill = if is_selected {
+        palette.accent_soft
+    } else if response.hovered() {
+        palette.surface_hover
+    } else {
+        egui::Color32::TRANSPARENT
+    };
+    painter.rect_filled(rect, 6, fill);
+    let icon_color = if is_selected {
+        palette.accent
+    } else {
+        palette.text_weak
+    };
+    painter.text(
+        rect.left_center() + egui::vec2(12.0, 0.0),
+        egui::Align2::LEFT_CENTER,
+        tool.icon,
+        icon_font(17.0),
+        icon_color,
+    );
+    painter.text(
+        rect.left_center() + egui::vec2(40.0, 0.0),
+        egui::Align2::LEFT_CENTER,
+        tool.name,
+        egui::FontId::proportional(14.5),
+        palette.text_strong,
+    );
+    painter.text(
+        rect.right_center() - egui::vec2(12.0, 0.0),
+        egui::Align2::RIGHT_CENTER,
+        tool.category.label(),
+        egui::FontId::proportional(12.5),
+        palette.text_weak,
+    );
+    response
 }
