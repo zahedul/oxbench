@@ -1,0 +1,21 @@
+[package]
+name = "oxbench-app"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[dependencies]
+oxbench-core = { path = "../oxbench-core" }
+eframe = { version = "0.37.0", features = ["persistence"] }
+serde = { version = "1.0.229", features = ["derive"] }
+
+[lints]
+workspace = true
+
+[[bin]]
+name = "oxbench"
+path = "src/main.rs"
+
+[dev-dependencies]
+egui_kittest = { version = "0.37.0", features = ["eframe"] }
