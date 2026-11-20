@@ -43,7 +43,7 @@ fn clicking_a_tool_opens_it_in_a_tab() {
         harness.state().workspace.open_tabs,
         [ToolId::EpochConverter]
     );
-    harness.get_by_label("This tool is planned and not built yet.");
+    harness.get_by_label("Current Unix time");
 }
 
 #[test]
@@ -181,6 +181,22 @@ fn render_screenshots() {
         harness.event(Event::Text("ke".to_owned()));
         harness.run();
         save_render(&mut harness, &output_dir, &format!("palette-{theme_name}"));
+
+        harness.key_press(Key::Escape);
+        harness
+            .state_mut()
+            .workspace
+            .open_tool(ToolId::EpochConverter);
+        harness.run();
+        save_render(&mut harness, &output_dir, &format!("epoch-{theme_name}"));
+
+        harness.get_by_label("Time zone").click();
+        harness.run();
+        save_render(
+            &mut harness,
+            &output_dir,
+            &format!("epoch-zones-{theme_name}"),
+        );
     }
 }
 

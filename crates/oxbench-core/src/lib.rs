@@ -4,6 +4,7 @@
     deny(clippy::unwrap_used, clippy::expect_used, clippy::panic)
 )]
 
+pub mod epoch;
 pub mod error;
 pub mod json;
 

@@ -6,6 +6,9 @@ license.workspace = true
 publish.workspace = true
 
 [dependencies]
+chrono = { version = "0.4.45", default-features = false, features = ["std", "clock"] }
+chrono-tz = "0.10.4"
+iana-time-zone = "0.1.65"
 jsonschema = { version = "0.61.2", default-features = false, features = ["arbitrary-precision", "idna"] }
 serde = "1.0.229"
 serde_json = { version = "1.0.154", features = ["preserve_order", "arbitrary_precision"] }
