@@ -1,4 +1,5 @@
 mod bcrypt;
+mod cidr;
 mod coming_soon;
 mod epoch;
 mod hash;
@@ -12,6 +13,7 @@ mod text_compare;
 use crate::registry::ToolId;
 use crate::tool::Tool;
 use bcrypt::BcryptTool;
+use cidr::CidrCalculator;
 use coming_soon::ComingSoon;
 use epoch::EpochConverter;
 use hash::HashGenerator;
@@ -33,6 +35,7 @@ pub fn create_tool(id: ToolId) -> Box<dyn Tool> {
         ToolId::PasswordGenerator => Box::new(PasswordGenerator::default()),
         ToolId::Bcrypt => Box::new(BcryptTool::default()),
         ToolId::TextCompare => Box::new(TextCompare::default()),
+        ToolId::CidrCalculator => Box::new(CidrCalculator::default()),
         _ => Box::new(ComingSoon::new(id)),
     }
 }

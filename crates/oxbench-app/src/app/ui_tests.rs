@@ -244,22 +244,44 @@ fn render_screenshots() {
             save_render(&mut harness, &output_dir, &format!("{name}-{theme_name}"));
         }
 
-        harness.state_mut().workspace.open_tool(ToolId::TextCompare);
+        render_compare_and_network_tools(&mut harness, &output_dir, theme_name);
+    }
+}
+
+fn render_compare_and_network_tools(
+    harness: &mut Harness<'_, OxbenchApp>,
+    output_dir: &str,
+    theme_name: &str,
+) {
+    harness.state_mut().workspace.open_tool(ToolId::TextCompare);
+    harness.run();
+    harness.get_by_label_contains("Sample").click();
+    harness.run();
+    save_render(harness, output_dir, &format!("compare-side-{theme_name}"));
+    harness.get_by_label("Unified").click();
+    harness.run();
+    save_render(
+        harness,
+        output_dir,
+        &format!("compare-unified-{theme_name}"),
+    );
+
+    harness
+        .state_mut()
+        .workspace
+        .open_tool(ToolId::CidrCalculator);
+    harness.run();
+    harness.get_by_label_contains("Sample").click();
+    harness.run();
+    save_render(harness, output_dir, &format!("cidr-subnet-{theme_name}"));
+    for (view, name) in [("Split", "split"), ("Merge", "merge")] {
+        harness.get_by_label(view).click();
         harness.run();
-        harness.get_by_label_contains("Sample").click();
-        harness.run();
-        save_render(
-            &mut harness,
-            &output_dir,
-            &format!("compare-side-{theme_name}"),
-        );
-        harness.get_by_label("Unified").click();
-        harness.run();
-        save_render(
-            &mut harness,
-            &output_dir,
-            &format!("compare-unified-{theme_name}"),
-        );
+        if view == "Merge" {
+            harness.get_by_label_contains("Sample").click();
+            harness.run();
+        }
+        save_render(harness, output_dir, &format!("cidr-{name}-{theme_name}"));
     }
 }
 
