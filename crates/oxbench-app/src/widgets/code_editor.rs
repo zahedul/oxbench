@@ -23,6 +23,18 @@ pub fn show_code_editor(
         .inner
 }
 
+/// Read-only monospace text sized to its content, for stacking several blocks in one scroll area.
+pub fn show_code_block(ui: &mut egui::Ui, id_salt: &str, text: &str) {
+    let mut read_only = text;
+    ui.add(
+        egui::TextEdit::multiline(&mut read_only)
+            .id_salt(id_salt)
+            .code_editor()
+            .desired_width(f32::INFINITY)
+            .desired_rows(1),
+    );
+}
+
 /// Read-only monospace text that can still be selected and copied.
 pub fn show_code_view(ui: &mut egui::Ui, id_salt: &str, text: &str) {
     let mut read_only = text;

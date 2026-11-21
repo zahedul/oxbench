@@ -1,7 +1,6 @@
 //! Epoch Converter: the current Unix time, timestamp ↔ date in any zone, period boundaries
 //! and second counts as days, hours and minutes.
 
-mod clock;
 mod zone_picker;
 
 #[cfg(test)]
@@ -16,6 +15,7 @@ use oxbench_core::epoch::{
     parse_calendar_date, parse_date_time, parse_seconds, parse_timestamp, split_duration,
 };
 
+use crate::clock::Clock;
 use crate::style::icons;
 use crate::style::palette::Palette;
 use crate::tool::Tool;
@@ -24,7 +24,6 @@ use crate::widgets::copy_button::show_copy_icon_button;
 use crate::widgets::icon_button::icon_label_button;
 use crate::widgets::status::{StatusTone, show_status};
 use crate::widgets::value_list::{ValueRow, show_value_list};
-pub use clock::Clock;
 use zone_picker::{describe_zone, show_zone_picker};
 
 /// Below this width the cards stack in one column.

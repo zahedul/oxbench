@@ -190,6 +190,17 @@ fn render_screenshots() {
         harness.run();
         save_render(&mut harness, &output_dir, &format!("epoch-{theme_name}"));
 
+        harness.state_mut().workspace.open_tool(ToolId::JwtDecoder);
+        harness.run();
+        harness.get_by_label_contains("Sample").click();
+        harness.run();
+        save_render(&mut harness, &output_dir, &format!("jwt-{theme_name}"));
+        harness
+            .state_mut()
+            .workspace
+            .open_tool(ToolId::EpochConverter);
+        harness.run();
+
         harness.get_by_label("Time zone").click();
         harness.run();
         save_render(

@@ -7,6 +7,7 @@ use crate::style::palette::Palette;
 pub enum StatusTone {
     Neutral,
     Success,
+    Warning,
     Error,
 }
 
@@ -17,6 +18,7 @@ pub fn show_status(ui: &mut egui::Ui, tone: StatusTone, text: &str) {
     let (icon, color) = match tone {
         StatusTone::Neutral => (None, palette.text_weak),
         StatusTone::Success => (Some(icons::CHECK_CIRCLE), palette.success),
+        StatusTone::Warning => (Some(icons::WARNING_CIRCLE), palette.warning),
         StatusTone::Error => (Some(icons::WARNING_CIRCLE), palette.error),
     };
     ui.horizontal(|ui| {

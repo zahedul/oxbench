@@ -6,7 +6,8 @@ use egui_kittest::Harness;
 use egui_kittest::kittest::Queryable;
 use oxbench_core::epoch::{DateTime, TimeUnit, Tz, Zone};
 
-use super::{Clock, EpochConverter};
+use super::EpochConverter;
+use crate::clock::Clock;
 use crate::style::install_style;
 use crate::tool::Tool;
 

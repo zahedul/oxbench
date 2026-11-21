@@ -7,5 +7,6 @@
 pub mod epoch;
 pub mod error;
 pub mod json;
+pub mod jwt;
 
 pub use error::{CoreError, CoreResult};

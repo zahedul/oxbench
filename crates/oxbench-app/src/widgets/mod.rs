@@ -5,6 +5,7 @@ pub mod code_editor;
 pub mod copy_button;
 pub mod icon_button;
 pub mod nav_row;
+pub mod pane_header;
 pub mod search_field;
 pub mod status;
 pub mod value_list;

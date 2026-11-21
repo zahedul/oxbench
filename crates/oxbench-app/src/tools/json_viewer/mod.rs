@@ -19,6 +19,7 @@ use crate::tool::Tool;
 use crate::widgets::code_editor::{show_code_editor, show_code_view};
 use crate::widgets::copy_button::show_copy_button;
 use crate::widgets::icon_button::icon_label_button;
+use crate::widgets::pane_header::show_pane_header;
 use crate::widgets::status::{StatusTone, show_status};
 use crate::widgets::view_tabs::show_view_tabs;
 use query::QueryPanel;
@@ -39,7 +40,6 @@ const SAMPLE_JSON: &str = r#"{
   "manager": null
 }"#;
 
-const PANE_HEADER_HEIGHT: f32 = 30.0;
 const STATUS_LINE_HEIGHT: f32 = 30.0;
 const MIN_BODY_HEIGHT: f32 = 120.0;
 
@@ -288,26 +288,6 @@ impl JsonViewer {
             }
         }
     }
-}
-
-/// A fixed-height title row, so the input and result panes line up.
-fn show_pane_header(ui: &mut egui::Ui, title: &str, add_actions: impl FnOnce(&mut egui::Ui)) {
-    let palette = Palette::of(ui);
-    ui.allocate_ui_with_layout(
-        egui::vec2(ui.available_width(), PANE_HEADER_HEIGHT),
-        egui::Layout::left_to_right(egui::Align::Center),
-        |ui| {
-            ui.label(
-                egui::RichText::new(title.to_uppercase())
-                    .size(11.0)
-                    .color(palette.text_weak),
-            );
-            ui.with_layout(
-                egui::Layout::right_to_left(egui::Align::Center),
-                add_actions,
-            );
-        },
-    );
 }
 
 fn show_text_output(ui: &mut egui::Ui, output: &CoreResult<String>) {

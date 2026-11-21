@@ -14,14 +14,24 @@ const MIN_VALUE_WIDTH: f32 = 80.0;
 pub struct ValueRow {
     pub label: String,
     pub value: String,
+    /// What the copy button copies; the value unless set with `copying`.
+    pub copy_text: String,
 }
 
 impl ValueRow {
     pub fn new(label: impl Into<String>, value: impl Into<String>) -> Self {
+        let value = value.into();
         Self {
             label: label.into(),
-            value: value.into(),
+            copy_text: value.clone(),
+            value,
         }
+    }
+
+    /// Copies `text` instead of the shown value, such as a raw timestamp shown with its date.
+    pub fn copying(mut self, text: &str) -> Self {
+        text.clone_into(&mut self.copy_text);
+        self
     }
 }
 
@@ -64,7 +74,7 @@ pub fn show_value_list(ui: &mut egui::Ui, rows: &[ValueRow]) {
                     );
                 },
             );
-            show_copy_icon_button(ui, &format!("Copy {}", row.label), &row.value);
+            show_copy_icon_button(ui, &format!("Copy {}", row.label), &row.copy_text);
         });
     }
 }
