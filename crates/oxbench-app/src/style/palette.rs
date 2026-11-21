@@ -25,6 +25,11 @@ pub struct Palette {
     pub syntax_number: Color32,
     pub syntax_bool: Color32,
     pub syntax_null: Color32,
+    /// Row tints for compared text, with a stronger shade for the exact words that changed.
+    pub diff_added: Color32,
+    pub diff_added_strong: Color32,
+    pub diff_removed: Color32,
+    pub diff_removed_strong: Color32,
 }
 
 pub const DARK: Palette = Palette {
@@ -46,6 +51,10 @@ pub const DARK: Palette = Palette {
     syntax_number: Color32::from_rgb(0x7C, 0xB7, 0xFF),
     syntax_bool: Color32::from_rgb(0xF0, 0xA3, 0x6E),
     syntax_null: Color32::from_rgb(0x8A, 0x91, 0x9E),
+    diff_added: Color32::from_rgb(0x19, 0x2B, 0x23),
+    diff_added_strong: Color32::from_rgb(0x23, 0x55, 0x3B),
+    diff_removed: Color32::from_rgb(0x30, 0x1D, 0x21),
+    diff_removed_strong: Color32::from_rgb(0x66, 0x2B, 0x31),
 };
 
 pub const LIGHT: Palette = Palette {
@@ -67,6 +76,10 @@ pub const LIGHT: Palette = Palette {
     syntax_number: Color32::from_rgb(0x1F, 0x5F, 0xBF),
     syntax_bool: Color32::from_rgb(0xB4, 0x55, 0x0B),
     syntax_null: Color32::from_rgb(0x7A, 0x80, 0x8C),
+    diff_added: Color32::from_rgb(0xE9, 0xF7, 0xEE),
+    diff_added_strong: Color32::from_rgb(0xB5, 0xE4, 0xC4),
+    diff_removed: Color32::from_rgb(0xFD, 0xEC, 0xEC),
+    diff_removed_strong: Color32::from_rgb(0xF6, 0xBF, 0xBF),
 };
 
 impl Palette {

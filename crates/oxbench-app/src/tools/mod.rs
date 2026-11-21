@@ -7,6 +7,7 @@ mod json_viewer;
 mod jwt;
 mod password;
 mod random_string;
+mod text_compare;
 
 use crate::registry::ToolId;
 use crate::tool::Tool;
@@ -19,6 +20,7 @@ use json_viewer::JsonViewer;
 use jwt::JwtDecoder;
 use password::PasswordGenerator;
 use random_string::RandomStringGenerator;
+use text_compare::TextCompare;
 
 pub fn create_tool(id: ToolId) -> Box<dyn Tool> {
     match id {
@@ -30,6 +32,7 @@ pub fn create_tool(id: ToolId) -> Box<dyn Tool> {
         ToolId::RandomString => Box::new(RandomStringGenerator::default()),
         ToolId::PasswordGenerator => Box::new(PasswordGenerator::default()),
         ToolId::Bcrypt => Box::new(BcryptTool::default()),
+        ToolId::TextCompare => Box::new(TextCompare::default()),
         _ => Box::new(ComingSoon::new(id)),
     }
 }

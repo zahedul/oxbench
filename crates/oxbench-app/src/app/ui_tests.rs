@@ -243,6 +243,23 @@ fn render_screenshots() {
             harness.run();
             save_render(&mut harness, &output_dir, &format!("{name}-{theme_name}"));
         }
+
+        harness.state_mut().workspace.open_tool(ToolId::TextCompare);
+        harness.run();
+        harness.get_by_label_contains("Sample").click();
+        harness.run();
+        save_render(
+            &mut harness,
+            &output_dir,
+            &format!("compare-side-{theme_name}"),
+        );
+        harness.get_by_label("Unified").click();
+        harness.run();
+        save_render(
+            &mut harness,
+            &output_dir,
+            &format!("compare-unified-{theme_name}"),
+        );
     }
 }
 

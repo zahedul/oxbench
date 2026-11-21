@@ -11,6 +11,7 @@ pub fn icon_text(icon: &str) -> RichText {
 }
 
 pub const ARROWS_CLOCKWISE: &str = "\u{E094}";
+pub const ARROWS_LEFT_RIGHT: &str = "\u{E0A0}";
 pub const ARROWS_IN: &str = "\u{E530}";
 pub const BRACKETS_CURLY: &str = "\u{E860}";
 pub const CHECK_CIRCLE: &str = "\u{E184}";

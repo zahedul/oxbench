@@ -5,6 +5,7 @@
 )]
 
 pub mod bcrypt;
+pub mod diff;
 pub mod epoch;
 pub mod error;
 pub mod hash;

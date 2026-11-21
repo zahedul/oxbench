@@ -156,8 +156,16 @@ impl ToolId {
             ToolId::TextCompare => (
                 "Text Compare",
                 Category::Text,
-                "Line, word and character diff",
-                &["diff", "compare", "difference", "text"],
+                "Compare two texts side by side or as a unified diff",
+                &[
+                    "diff",
+                    "compare",
+                    "difference",
+                    "text",
+                    "patch",
+                    "unified",
+                    "changes",
+                ],
             ),
             ToolId::CidrCalculator => (
                 "IP / CIDR Calculator",
