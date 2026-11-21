@@ -9,6 +9,8 @@ publish.workspace = true
 oxbench-core = { path = "../oxbench-core" }
 eframe = { version = "0.37.0", features = ["persistence"] }
 serde = { version = "1.0.229", features = ["derive"] }
+rfd = "0.18.0"
+rand = "0.10.4"
 
 [lints]
 workspace = true

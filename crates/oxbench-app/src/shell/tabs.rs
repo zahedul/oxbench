@@ -2,7 +2,7 @@ use eframe::egui::{self, Align2, FontId, Role, Sense, ThemePreference, WidgetInf
 
 use super::ShellAction;
 use super::theme::{next_theme, theme_icon, theme_label};
-use crate::registry::ToolMeta;
+use crate::registry::{ToolId, ToolMeta};
 use crate::style::fonts::icon_font;
 use crate::style::icons;
 use crate::style::palette::Palette;
@@ -13,6 +13,7 @@ pub const TAB_BAR_HEIGHT: f32 = 40.0;
 const TAB_HEIGHT: f32 = 34.0;
 const TAB_FONT_SIZE: f32 = 13.5;
 const SEARCH_BUTTON_WIDTH: f32 = 220.0;
+const SEARCH_GAP: f32 = 12.0;
 
 pub fn show_tab_bar(
     ui: &mut egui::Ui,
@@ -22,20 +23,7 @@ pub fn show_tab_bar(
     actions: &mut Vec<ShellAction>,
 ) {
     ui.horizontal_centered(|ui| {
-        ui.spacing_mut().item_spacing.x = 2.0;
-        if show_home_tab(ui, workspace.active_tab.is_none()).clicked() {
-            actions.push(ShellAction::ShowHome);
-        }
-        for id in &workspace.open_tabs {
-            let is_active = workspace.active_tab == Some(*id);
-            show_tool_tab(
-                ui,
-                id.meta(),
-                is_active,
-                workspace.is_favorite(*id),
-                actions,
-            );
-        }
+        // The fixed controls go first, from the right, so the tabs get whatever width is left.
         ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
             ui.spacing_mut().item_spacing.x = 6.0;
             if show_icon_button(ui, theme_icon(theme), theme_label(theme)).clicked() {
@@ -44,8 +32,45 @@ pub fn show_tab_bar(
             if show_search_button(ui, palette_shortcut).clicked() {
                 actions.push(ShellAction::OpenPalette);
             }
+            ui.add_space(SEARCH_GAP);
+            ui.with_layout(egui::Layout::left_to_right(egui::Align::Center), |ui| {
+                show_tab_strip(ui, workspace, actions);
+            });
         });
     });
+}
+
+/// Home and the open tools. They scroll sideways when they do not fit, and a newly active tab
+/// is scrolled into view.
+fn show_tab_strip(ui: &mut egui::Ui, workspace: &Workspace, actions: &mut Vec<ShellAction>) {
+    let revealed_id = ui.scope_id().with("revealed_tab");
+    let revealed: Option<Option<ToolId>> = ui.data(|data| data.get_temp(revealed_id));
+    let should_reveal_active = revealed != Some(workspace.active_tab);
+    ui.data_mut(|data| data.insert_temp(revealed_id, workspace.active_tab));
+    egui::ScrollArea::horizontal()
+        .id_salt("tab_strip")
+        .scroll_bar_visibility(egui::scroll_area::ScrollBarVisibility::AlwaysHidden)
+        .show(ui, |ui| {
+            ui.horizontal_centered(|ui| {
+                ui.spacing_mut().item_spacing.x = 2.0;
+                if show_home_tab(ui, workspace.active_tab.is_none()).clicked() {
+                    actions.push(ShellAction::ShowHome);
+                }
+                for id in &workspace.open_tabs {
+                    let is_active = workspace.active_tab == Some(*id);
+                    let response = show_tool_tab(
+                        ui,
+                        id.meta(),
+                        is_active,
+                        workspace.is_favorite(*id),
+                        actions,
+                    );
+                    if is_active && should_reveal_active {
+                        response.scroll_to_me(None);
+                    }
+                }
+            });
+        });
 }
 
 fn show_home_tab(ui: &mut egui::Ui, is_active: bool) -> egui::Response {
@@ -74,7 +99,7 @@ fn show_tool_tab(
     is_active: bool,
     is_favorite: bool,
     actions: &mut Vec<ShellAction>,
-) {
+) -> egui::Response {
     let palette = Palette::of(ui);
     let text_color = if is_active {
         palette.text_strong
@@ -145,6 +170,7 @@ fn show_tool_tab(
             actions.push(ShellAction::ToggleFavorite(tool.id));
         }
     });
+    response
 }
 
 /// The active tab takes the content background and an accent line, so it reads as part of the page.

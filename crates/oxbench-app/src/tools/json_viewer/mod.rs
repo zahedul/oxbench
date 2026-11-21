@@ -14,13 +14,13 @@ use oxbench_core::json::{
 use oxbench_core::{CoreError, CoreResult};
 
 use crate::style::icons;
-use crate::style::palette::Palette;
 use crate::tool::Tool;
 use crate::widgets::code_editor::{show_code_editor, show_code_view};
 use crate::widgets::copy_button::show_copy_button;
 use crate::widgets::icon_button::icon_label_button;
 use crate::widgets::pane_header::show_pane_header;
 use crate::widgets::status::{StatusTone, show_status};
+use crate::widgets::tool_header::show_tool_header;
 use crate::widgets::view_tabs::show_view_tabs;
 use query::QueryPanel;
 use schema::SchemaPanel;
@@ -159,11 +159,13 @@ impl JsonViewer {
     }
 
     fn show_header(&mut self, ui: &mut egui::Ui) {
-        let palette = Palette::of(ui);
-        ui.horizontal(|ui| {
-            let options = JsonView::ALL.map(|view| (view, view.label()));
-            show_view_tabs(ui, &mut self.view, &options);
-            ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
+        show_tool_header(
+            ui,
+            |ui| {
+                let options = JsonView::ALL.map(|view| (view, view.label()));
+                show_view_tabs(ui, &mut self.view, &options);
+            },
+            |ui| {
                 if ui.add(icon_label_button(icons::ERASER, "Clear")).clicked() {
                     self.input.clear();
                     self.is_input_changed = true;
@@ -175,15 +177,8 @@ impl JsonViewer {
                     SAMPLE_JSON.clone_into(&mut self.input);
                     self.is_input_changed = true;
                 }
-            });
-        });
-        let line_y = ui.min_rect().bottom();
-        ui.painter().hline(
-            ui.max_rect().x_range(),
-            line_y,
-            egui::Stroke::new(1.0, palette.border),
+            },
         );
-        ui.add_space(10.0);
     }
 
     fn show_toolbar(&mut self, ui: &mut egui::Ui) {

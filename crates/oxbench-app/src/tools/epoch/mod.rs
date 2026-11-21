@@ -22,6 +22,7 @@ use crate::tool::Tool;
 use crate::widgets::card::show_card;
 use crate::widgets::copy_button::show_copy_icon_button;
 use crate::widgets::icon_button::icon_label_button;
+use crate::widgets::input_row;
 use crate::widgets::status::{StatusTone, show_status};
 use crate::widgets::value_list::{ValueRow, show_value_list};
 use zone_picker::{describe_zone, show_zone_picker};
@@ -313,22 +314,10 @@ fn show_input_row<R>(
     hint: &str,
     add_trailing: impl FnOnce(&mut egui::Ui) -> R,
 ) -> R {
-    let row_size = egui::vec2(ui.available_width(), ui.spacing().interact_size.y);
-    ui.allocate_ui_with_layout(
-        row_size,
-        egui::Layout::right_to_left(egui::Align::Center),
-        |ui| {
-            let trailing = add_trailing(ui);
-            ui.add(
-                egui::TextEdit::singleline(text)
-                    .font(egui::TextStyle::Monospace)
-                    .hint_text(hint)
-                    .desired_width(ui.available_width()),
-            );
-            trailing
-        },
-    )
-    .inner
+    let input = egui::TextEdit::singleline(text)
+        .font(egui::TextStyle::Monospace)
+        .hint_text(hint);
+    input_row::show_input_row(ui, input, add_trailing).1
 }
 
 fn show_unit_picker(ui: &mut egui::Ui, unit: &mut Option<TimeUnit>) {

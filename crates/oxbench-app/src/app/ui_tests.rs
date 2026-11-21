@@ -2,7 +2,7 @@
 
 use eframe::egui::{self, Event, Key, Modifiers, ThemePreference};
 use egui_kittest::Harness;
-use egui_kittest::kittest::Queryable;
+use egui_kittest::kittest::{NodeT, Queryable};
 
 use super::OxbenchApp;
 use crate::registry::ToolId;
@@ -31,6 +31,27 @@ fn starts_on_the_home_screen() {
     let harness = launch();
     assert_eq!(active_tab(&harness), None);
     harness.get_by_label("Search all tools");
+}
+
+#[test]
+fn the_active_tab_stays_in_view_when_many_are_open() {
+    let mut harness = launch();
+    for id in ToolId::ALL {
+        harness.state_mut().workspace.open_tool(id);
+    }
+    harness.run();
+    let last = ToolId::ALL[ToolId::ALL.len() - 1].meta().name;
+    let tab_right = harness
+        .get_all_by_role(egui::accesskit::Role::Tab)
+        .find(|node| node.accesskit_node().label().as_deref() == Some(last))
+        .unwrap_or_else(|| panic!("no tab for {last}"))
+        .rect()
+        .right();
+    let search_left = harness.get_by_label("Search tools").rect().left();
+    assert!(
+        tab_right <= search_left,
+        "the {last} tab ends at {tab_right}, under the search box at {search_left}"
+    );
 }
 
 #[test]
@@ -208,6 +229,20 @@ fn render_screenshots() {
             &output_dir,
             &format!("epoch-zones-{theme_name}"),
         );
+        harness.key_press(Key::Escape);
+
+        let generators = [
+            (ToolId::HashGenerator, "hash"),
+            (ToolId::IdGenerator, "ids"),
+            (ToolId::RandomString, "random"),
+            (ToolId::PasswordGenerator, "password"),
+            (ToolId::Bcrypt, "bcrypt"),
+        ];
+        for (tool, name) in generators {
+            harness.state_mut().workspace.open_tool(tool);
+            harness.run();
+            save_render(&mut harness, &output_dir, &format!("{name}-{theme_name}"));
+        }
     }
 }
 

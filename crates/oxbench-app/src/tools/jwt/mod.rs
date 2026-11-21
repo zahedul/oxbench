@@ -15,9 +15,9 @@ use oxbench_core::jwt::{
 };
 use oxbench_core::{CoreError, CoreResult};
 
+use crate::cached::Cached;
 use crate::clock::Clock;
 use crate::style::icons;
-use crate::style::palette::Palette;
 use crate::tool::Tool;
 use crate::widgets::card::show_card;
 use crate::widgets::code_editor::show_code_block;
@@ -25,6 +25,7 @@ use crate::widgets::copy_button::show_copy_button;
 use crate::widgets::icon_button::icon_label_button;
 use crate::widgets::pane_header::show_pane_header;
 use crate::widgets::status::{StatusTone, show_status};
+use crate::widgets::tool_header::show_tool_header;
 use crate::widgets::value_list::{ValueRow, show_value_list};
 use token_editor::show_token_editor;
 
@@ -43,12 +44,6 @@ struct DecodedView {
     header_json: String,
     payload_text: String,
     claims: Vec<ClaimRow>,
-}
-
-/// Remembers which inputs a result came from, so work is redone only when they change.
-struct Cached<K, V> {
-    key: K,
-    value: V,
 }
 
 type VerifyKey = (String, String, SecretEncoding);
@@ -120,9 +115,10 @@ impl JwtDecoder {
     }
 
     fn show_header(&mut self, ui: &mut egui::Ui) {
-        let palette = Palette::of(ui);
-        ui.horizontal(|ui| {
-            ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
+        show_tool_header(
+            ui,
+            |_| {},
+            |ui| {
                 if ui.add(icon_label_button(icons::ERASER, "Clear")).clicked() {
                     self.token_input.clear();
                     self.key_input.clear();
@@ -136,15 +132,8 @@ impl JwtDecoder {
                     SAMPLE_SECRET.clone_into(&mut self.key_input);
                     self.secret_encoding = SecretEncoding::Text;
                 }
-            });
-        });
-        let line_y = ui.min_rect().bottom() + 4.0;
-        ui.painter().hline(
-            ui.max_rect().x_range(),
-            line_y,
-            egui::Stroke::new(1.0, palette.border),
+            },
         );
-        ui.add_space(14.0);
     }
 
     fn show_token_pane(&mut self, ui: &mut egui::Ui) {

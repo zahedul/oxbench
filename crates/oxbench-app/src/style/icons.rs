@@ -10,6 +10,7 @@ pub fn icon_text(icon: &str) -> RichText {
     RichText::new(icon).family(icon_family())
 }
 
+pub const ARROWS_CLOCKWISE: &str = "\u{E094}";
 pub const ARROWS_IN: &str = "\u{E530}";
 pub const BRACKETS_CURLY: &str = "\u{E860}";
 pub const CHECK_CIRCLE: &str = "\u{E184}";
@@ -21,7 +22,10 @@ pub const CODE: &str = "\u{E1BC}";
 pub const COPY: &str = "\u{E1CA}";
 pub const DICE_FIVE: &str = "\u{E1EE}";
 pub const ERASER: &str = "\u{E21E}";
+pub const EYE: &str = "\u{E220}";
+pub const EYE_SLASH: &str = "\u{E224}";
 pub const FINGERPRINT: &str = "\u{E23E}";
+pub const FOLDER_OPEN: &str = "\u{E256}";
 pub const GIT_DIFF: &str = "\u{E27C}";
 pub const HASH: &str = "\u{E2A2}";
 pub const HOUSE: &str = "\u{E2C2}";
@@ -35,6 +39,7 @@ pub const PARAGRAPH: &str = "\u{E960}";
 pub const PASSWORD: &str = "\u{E752}";
 pub const QR_CODE: &str = "\u{E3E6}";
 pub const SEAL_CHECK: &str = "\u{E606}";
+pub const SHIELD_CHECK: &str = "\u{E40C}";
 pub const STAR: &str = "\u{E46A}";
 pub const SUN: &str = "\u{E472}";
 pub const WARNING_CIRCLE: &str = "\u{E4E2}";

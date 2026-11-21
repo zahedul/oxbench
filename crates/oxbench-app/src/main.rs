@@ -1,10 +1,12 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 mod app;
+mod cached;
 mod clock;
 mod registry;
 mod shell;
 mod style;
+mod tasks;
 mod tool;
 mod tools;
 mod widgets;

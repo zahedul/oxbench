@@ -7,15 +7,28 @@ publish.workspace = true
 
 [dependencies]
 base64 = "0.23.1"
+bcrypt = "0.19.3"
+blake3 = "1.8.7"
 chrono = { version = "0.4.45", default-features = false, features = ["std", "clock"] }
 chrono-tz = "0.10.4"
+digest = { version = "0.11.3", features = ["alloc"] }
+eff-wordlist = "1.0.3"
+hmac = "0.13.0"
 iana-time-zone = "0.1.65"
 jsonschema = { version = "0.61.2", default-features = false, features = ["arbitrary-precision", "idna"] }
 jsonwebtoken = { version = "12.0.0", features = ["rust_crypto"] }
+md-5 = "0.11.0"
+rand = "0.10.4"
 serde = "1.0.229"
 serde_json = { version = "1.0.154", features = ["preserve_order", "arbitrary_precision"] }
 serde_json_path = "0.7.2"
+sha1 = "0.11.0"
+sha2 = "0.11.1"
+sha3 = "0.12.0"
 thiserror = "2.0.21"
+ulid = "3.0.0"
+uuid = { version = "1.29.3", features = ["v1", "v3", "v4", "v5", "v6", "v7", "std"] }
+zxcvbn = "3.1.1"
 
 [lints]
 workspace = true
