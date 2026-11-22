@@ -22,6 +22,7 @@ pub const CLOCK_HISTORY: &str = "\u{E1A0}";
 pub const CODE: &str = "\u{E1BC}";
 pub const COPY: &str = "\u{E1CA}";
 pub const DICE_FIVE: &str = "\u{E1EE}";
+pub const DOWNLOAD_SIMPLE: &str = "\u{E20C}";
 pub const ERASER: &str = "\u{E21E}";
 pub const EYE: &str = "\u{E220}";
 pub const EYE_SLASH: &str = "\u{E224}";

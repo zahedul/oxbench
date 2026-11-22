@@ -245,6 +245,7 @@ fn render_screenshots() {
         }
 
         render_compare_and_network_tools(&mut harness, &output_dir, theme_name);
+        render_step_eight_tools(&mut harness, &output_dir, theme_name);
     }
 }
 
@@ -283,6 +284,36 @@ fn render_compare_and_network_tools(
         }
         save_render(harness, output_dir, &format!("cidr-{name}-{theme_name}"));
     }
+}
+
+fn render_step_eight_tools(
+    harness: &mut Harness<'_, OxbenchApp>,
+    output_dir: &str,
+    theme_name: &str,
+) {
+    harness.state_mut().workspace.open_tool(ToolId::QrGenerator);
+    harness.run();
+    harness
+        .get_all_by_role(egui::accesskit::Role::MultilineTextInput)
+        .next()
+        .unwrap()
+        .click();
+    harness.run();
+    harness.event(Event::Text("https://example.com/oxbench".to_owned()));
+    harness.run();
+    save_render(harness, output_dir, &format!("qr-{theme_name}"));
+
+    harness.state_mut().workspace.open_tool(ToolId::LoremIpsum);
+    harness.run();
+    save_render(harness, output_dir, &format!("lorem-{theme_name}"));
+
+    harness.state_mut().workspace.open_tool(ToolId::KeyPair);
+    for _ in 0..50 {
+        harness.step();
+        std::thread::sleep(std::time::Duration::from_millis(10));
+    }
+    harness.run();
+    save_render(harness, output_dir, &format!("keypair-{theme_name}"));
 }
 
 fn save_render(harness: &mut Harness<'_, OxbenchApp>, output_dir: &str, name: &str) {

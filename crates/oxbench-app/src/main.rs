@@ -4,6 +4,7 @@ mod app;
 mod cached;
 mod clock;
 mod registry;
+mod save_file;
 mod shell;
 mod style;
 mod tasks;

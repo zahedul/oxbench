@@ -13,7 +13,10 @@ pub mod hash;
 pub mod id;
 pub mod json;
 pub mod jwt;
+pub mod keypair;
+pub mod lorem;
 pub mod password;
+pub mod qr;
 pub mod random_string;
 
 pub use error::{CoreError, CoreResult};

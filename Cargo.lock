@@ -1019,6 +1019,7 @@ dependencies = [
  "curve25519-dalek-derive",
  "digest 0.11.3",
  "fiat-crypto",
+ "rand_core 0.10.1",
  "rustc_version",
  "subtle",
  "zeroize",
@@ -1263,7 +1264,10 @@ checksum = "6ebaa1a2bf1290ab3bfe5a7b771d050ebffab2711c19a81691c683a5144a25de"
 dependencies = [
  "curve25519-dalek",
  "ed25519",
+ "rand_core 0.10.1",
+ "serde",
  "sha2",
+ "signature",
  "subtle",
  "zeroize",
 ]
@@ -3409,6 +3413,7 @@ dependencies = [
  "chrono",
  "chrono-tz",
  "digest 0.11.3",
+ "ed25519-dalek",
  "eff-wordlist",
  "hmac",
  "iana-time-zone",
@@ -3416,7 +3421,12 @@ dependencies = [
  "jsonschema",
  "jsonwebtoken",
  "md-5 0.11.0",
+ "p256",
+ "p384",
+ "png",
+ "qrcode",
  "rand 0.10.4",
+ "rsa",
  "serde",
  "serde_json",
  "serde_json_path",
@@ -3824,6 +3834,12 @@ name = "pxfm"
 version = "0.1.30"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d55d956fa96f5ec02be2e13af0e20391a5aa83d6a074e3ad368959d0fab299ea"
+
+[[package]]
+name = "qrcode"
+version = "0.15.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ace1a365f55004297f2cf24acfd96d02966246ca423385273b58a7dc873ee14d"
 
 [[package]]
 name = "quick-error"
