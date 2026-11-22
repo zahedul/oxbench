@@ -6,6 +6,7 @@ use egui_kittest::kittest::{NodeT, Queryable};
 
 use super::OxbenchApp;
 use crate::registry::ToolId;
+use crate::update_check::{UpdateChecker, UpdateStatus};
 
 fn launch() -> Harness<'static, OxbenchApp> {
     let mut harness = Harness::new_eframe(|creation_context| OxbenchApp::new(creation_context));
@@ -157,6 +158,36 @@ fn theme_button_cycles_the_theme() {
     harness.get_by_label("Theme: Light");
 }
 
+#[test]
+fn settings_menu_changes_a_preference() {
+    let mut harness = launch();
+    assert!(harness.state().settings.should_check_for_updates);
+    harness.get_by_label("Settings").click();
+    harness.run();
+    harness
+        .get_by_label("Check for updates when Oxbench starts")
+        .click();
+    harness.run();
+    assert!(!harness.state().settings.should_check_for_updates);
+}
+
+#[test]
+fn a_newer_release_is_announced_in_the_sidebar() {
+    let mut harness = launch();
+    assert!(harness.query_by_label("Update available").is_none());
+    harness.state_mut().updates = available_update();
+    harness.run();
+    harness.get_by_label("Update available");
+    harness.get_by_label_contains("Get 9.9.0");
+}
+
+fn available_update() -> UpdateChecker {
+    UpdateChecker::finished_with(UpdateStatus::Available {
+        version: "9.9.0".to_owned(),
+        page: "https://github.com/zahedul/oxbench/releases/tag/v9.9.0".to_owned(),
+    })
+}
+
 /// Renders screenshots for visual review. Run explicitly:
 /// `OXBENCH_SCREENSHOT_DIR=/some/dir cargo test -p oxbench-app render_screenshots -- --ignored`
 #[test]
@@ -246,6 +277,11 @@ fn render_screenshots() {
 
         render_compare_and_network_tools(&mut harness, &output_dir, theme_name);
         render_step_eight_tools(&mut harness, &output_dir, theme_name);
+
+        harness.state_mut().updates = available_update();
+        harness.get_by_label("Settings").click();
+        harness.run();
+        save_render(&mut harness, &output_dir, &format!("settings-{theme_name}"));
     }
 }
 

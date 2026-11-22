@@ -3,6 +3,7 @@
 
 pub mod command_palette;
 pub mod home;
+pub mod settings_menu;
 pub mod sidebar;
 pub mod tabs;
 pub mod theme;
@@ -10,6 +11,7 @@ pub mod theme;
 use eframe::egui::ThemePreference;
 
 use crate::registry::ToolId;
+use crate::settings::Settings;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum ShellAction {
@@ -19,4 +21,6 @@ pub enum ShellAction {
     ToggleFavorite(ToolId),
     OpenPalette,
     SetTheme(ThemePreference),
+    ChangeSettings(Settings),
+    CheckForUpdates,
 }

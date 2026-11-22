@@ -1,6 +1,7 @@
 use eframe::egui::{self, Align2, FontId, Role, Sense, ThemePreference, WidgetInfo};
 
 use super::ShellAction;
+use super::settings_menu::{SettingsView, show_settings_button};
 use super::theme::{next_theme, theme_icon, theme_label};
 use crate::registry::{ToolId, ToolMeta};
 use crate::style::fonts::icon_font;
@@ -20,12 +21,14 @@ pub fn show_tab_bar(
     workspace: &Workspace,
     theme: ThemePreference,
     palette_shortcut: &str,
+    settings_view: &SettingsView<'_>,
     actions: &mut Vec<ShellAction>,
 ) {
     ui.horizontal_centered(|ui| {
         // The fixed controls go first, from the right, so the tabs get whatever width is left.
         ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
             ui.spacing_mut().item_spacing.x = 6.0;
+            show_settings_button(ui, settings_view, actions);
             if show_icon_button(ui, theme_icon(theme), theme_label(theme)).clicked() {
                 actions.push(ShellAction::SetTheme(next_theme(theme)));
             }

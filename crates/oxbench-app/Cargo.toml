@@ -11,6 +11,9 @@ eframe = { version = "0.37.0", features = ["persistence"] }
 serde = { version = "1.0.229", features = ["derive"] }
 rfd = "0.18.0"
 rand = "0.10.4"
+ureq = { version = "3.5.2", default-features = false, features = ["rustls", "json"] }
+semver = "1.0.28"
+global-hotkey = "0.10.0"
 
 [lints]
 workspace = true
@@ -21,3 +24,35 @@ path = "src/main.rs"
 
 [dev-dependencies]
 egui_kittest = { version = "0.37.0", features = ["eframe", "snapshot", "wgpu"] }
+
+[target.'cfg(not(target_os = "linux"))'.dependencies]
+tray-icon = "0.26.1"
+
+# `cargo packager --release` builds the installers into target/packages. macOS builds are
+# ad-hoc signed ("-"); set a Developer ID here and APPLE_* variables in the environment to
+# sign and notarise them for other Macs (see README).
+[package.metadata.packager]
+product-name = "Oxbench"
+identifier = "io.github.zahedul.oxbench"
+description = "A desktop toolkit of everyday developer utilities"
+homepage = "https://github.com/zahedul/oxbench"
+publisher = "zahedul"
+category = "DeveloperTool"
+before-packaging-command = "cargo build --release -p oxbench-app"
+out-dir = "../../target/packages"
+binaries = [{ path = "oxbench", main = true }]
+icons = [
+  "../../assets/icons/32x32.png",
+  "../../assets/icons/128x128.png",
+  "../../assets/icons/256x256.png",
+  "../../assets/icons/512x512.png",
+  "../../assets/icons/icon.icns",
+  "../../assets/icons/icon.ico",
+]
+
+[package.metadata.packager.macos]
+minimum-system-version = "11.0"
+signing-identity = "-"
+
+[package.metadata.packager.deb]
+depends = ["libgtk-3-0", "libxkbcommon0"]

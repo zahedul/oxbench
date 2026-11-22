@@ -3,16 +3,21 @@ use std::collections::HashMap;
 use eframe::egui::{self, Key, KeyboardShortcut, Modifiers, ThemePreference};
 use serde::{Deserialize, Serialize};
 
+use crate::desktop::{Desktop, DesktopEvent, DesktopStatus};
 use crate::registry::ToolId;
+use crate::settings::Settings;
 use crate::shell::ShellAction;
 use crate::shell::command_palette::CommandPalette;
 use crate::shell::home::show_home;
+use crate::shell::settings_menu::{SettingsView, show_release_link};
 use crate::shell::sidebar::show_sidebar;
 use crate::shell::tabs::{TAB_BAR_HEIGHT, show_tab_bar};
 use crate::style::install_style;
 use crate::style::palette::Palette;
 use crate::tool::Tool;
 use crate::tools::create_tool;
+use crate::update_check::{UpdateChecker, UpdateStatus};
+use crate::widgets::card::show_card;
 use crate::workspace::Workspace;
 
 const PALETTE_SHORTCUT: KeyboardShortcut = KeyboardShortcut::new(Modifiers::COMMAND, Key::K);
@@ -34,14 +39,20 @@ const FAVORITE_KEYS: [Key; 9] = [
 struct SavedState {
     workspace: Workspace,
     theme: ThemePreference,
+    settings: Settings,
 }
 
 pub struct OxbenchApp {
     workspace: Workspace,
     theme: ThemePreference,
+    settings: Settings,
     tools: HashMap<ToolId, Box<dyn Tool>>,
     palette: CommandPalette,
     sidebar_filter: String,
+    /// `None` in tests, which must not register shortcuts or icons on the machine running them.
+    desktop: Option<Desktop>,
+    desktop_status: DesktopStatus,
+    updates: UpdateChecker,
 }
 
 impl OxbenchApp {
@@ -57,10 +68,66 @@ impl OxbenchApp {
         Self {
             workspace,
             theme: saved.theme,
+            settings: saved.settings,
             tools: HashMap::new(),
             palette: CommandPalette::default(),
             sidebar_filter: String::new(),
+            desktop: None,
+            desktop_status: DesktopStatus::default(),
+            updates: UpdateChecker::default(),
         }
+    }
+
+    /// The real app: adds the global shortcut and menu bar icon, and checks for updates.
+    pub fn with_desktop(creation_context: &eframe::CreationContext<'_>) -> Self {
+        let mut app = Self::new(creation_context);
+        let ctx = &creation_context.egui_ctx;
+        let mut desktop = Desktop::new(ctx);
+        desktop.apply_settings(app.settings);
+        app.desktop_status = desktop.status();
+        app.desktop = Some(desktop);
+        if app.settings.should_check_for_updates {
+            app.updates.start(ctx);
+        }
+        app
+    }
+
+    fn collect_desktop_actions(&self, ctx: &egui::Context, actions: &mut Vec<ShellAction>) {
+        let Some(desktop) = &self.desktop else {
+            return;
+        };
+        for event in desktop.take_events() {
+            match event {
+                // The window was already raised when the event arrived.
+                DesktopEvent::Show => {}
+                DesktopEvent::OpenTool(id) => actions.push(ShellAction::OpenTool(id)),
+                DesktopEvent::Quit => ctx.send_viewport_cmd(egui::ViewportCommand::Close),
+            }
+        }
+    }
+
+    fn change_settings(&mut self, settings: Settings) {
+        self.settings = settings;
+        let Some(desktop) = &mut self.desktop else {
+            return;
+        };
+        desktop.apply_settings(settings);
+        self.desktop_status = desktop.status();
+    }
+
+    /// A newer release is announced at the foot of the sidebar until the app restarts.
+    fn show_update_notice(&self, ui: &mut egui::Ui) {
+        let Some(Ok(UpdateStatus::Available { version, page })) = self.updates.outcome() else {
+            return;
+        };
+        egui::Panel::bottom("update_notice")
+            .frame(egui::Frame::default().inner_margin(egui::Margin::symmetric(0, 8)))
+            .show(ui, |ui| {
+                show_card(ui, "Update available", |ui| {
+                    ui.label(format!("Version {version} is ready to download."));
+                    show_release_link(ui, version, page);
+                });
+            });
     }
 
     fn collect_shortcut_actions(&self, ctx: &egui::Context, actions: &mut Vec<ShellAction>) {
@@ -102,6 +169,8 @@ impl OxbenchApp {
                 self.theme = theme;
                 ctx.set_theme(theme);
             }
+            ShellAction::ChangeSettings(settings) => self.change_settings(settings),
+            ShellAction::CheckForUpdates => self.updates.start(ctx),
         }
     }
 
@@ -125,6 +194,8 @@ impl eframe::App for OxbenchApp {
         let ctx = ui.ctx().clone();
         let palette_shortcut = ctx.format_shortcut(&PALETTE_SHORTCUT);
         let mut actions = Vec::new();
+        self.updates.poll();
+        self.collect_desktop_actions(&ctx, &mut actions);
         self.collect_shortcut_actions(&ctx, &mut actions);
 
         let palette = Palette::of_context(&ctx);
@@ -138,6 +209,7 @@ impl eframe::App for OxbenchApp {
                     .inner_margin(egui::Margin::symmetric(10, 12)),
             )
             .show(ui, |ui| {
+                self.show_update_notice(ui);
                 show_sidebar(ui, &self.workspace, &mut self.sidebar_filter, &mut actions);
             });
         egui::Panel::top("tab_bar")
@@ -153,11 +225,17 @@ impl eframe::App for OxbenchApp {
                     }),
             )
             .show(ui, |ui| {
+                let settings_view = SettingsView {
+                    settings: self.settings,
+                    desktop: &self.desktop_status,
+                    updates: &self.updates,
+                };
                 show_tab_bar(
                     ui,
                     &self.workspace,
                     self.theme,
                     &palette_shortcut,
+                    &settings_view,
                     &mut actions,
                 );
             });
@@ -181,6 +259,7 @@ impl eframe::App for OxbenchApp {
         let saved = SavedState {
             workspace: self.workspace.clone(),
             theme: self.theme,
+            settings: self.settings,
         };
         eframe::set_value(storage, eframe::APP_KEY, &saved);
     }

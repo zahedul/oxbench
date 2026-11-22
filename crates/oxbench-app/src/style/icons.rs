@@ -10,6 +10,7 @@ pub fn icon_text(icon: &str) -> RichText {
     RichText::new(icon).family(icon_family())
 }
 
+pub const ARROW_SQUARE_OUT: &str = "\u{E5DE}";
 pub const ARROWS_CLOCKWISE: &str = "\u{E094}";
 pub const ARROWS_LEFT_RIGHT: &str = "\u{E0A0}";
 pub const ARROWS_IN: &str = "\u{E530}";
@@ -28,6 +29,7 @@ pub const EYE: &str = "\u{E220}";
 pub const EYE_SLASH: &str = "\u{E224}";
 pub const FINGERPRINT: &str = "\u{E23E}";
 pub const FOLDER_OPEN: &str = "\u{E256}";
+pub const GEAR_SIX: &str = "\u{E272}";
 pub const GIT_DIFF: &str = "\u{E27C}";
 pub const HASH: &str = "\u{E2A2}";
 pub const HOUSE: &str = "\u{E2C2}";
